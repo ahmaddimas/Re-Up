@@ -6,11 +6,16 @@ using UnityEngine.SceneManagement;
 public class GameControl : MonoBehaviour
 {
     public static GameControl instance;         
-    public Text scoreText;                      
-    public GameObject gameOvertext;            
+    public Text scoreText;
+	public Text SkorText;
+	public Text HighText;
+	public GameObject GameOverCanvas;
+	public GameObject PauseCanvas;
+    public GameObject gameOvertext;
 
-    private int score = 0;                     
-    public bool gameOver = false;               
+    private int score = 0;
+	private int highscore;
+    public bool gameOver = false;
     public float scrollSpeed = -1.5f;
 
     void Awake()
@@ -23,29 +28,39 @@ public class GameControl : MonoBehaviour
     }
 
 	void Start() {
-		GameObject go = GameObject.Find("SoundManager");
-		backgroundMusic other = (backgroundMusic) go.GetComponent(typeof(backgroundMusic));
-		other.PauseAudio();
+		GameObject go = GameObject.Find ("SoundManager");
+		backgroundMusic other = (backgroundMusic)go.GetComponent (typeof(backgroundMusic));
+		highscore = other.highscore;
 	}
 
     void Update()
     {
-        if (gameOver && Input.GetMouseButtonDown(0))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
 		if (Application.platform == RuntimePlatform.Android) {
 			if (Input.GetKey (KeyCode.Escape)) {
-				SceneManager.LoadScene("MainMenu");
-
-				GameObject go = GameObject.Find("SoundManager");
-				backgroundMusic other = (backgroundMusic) go.GetComponent(typeof(backgroundMusic));
-				other.StartAudio ();
-
-				return;
+				if (!PauseCanvas.activeInHierarchy && !GameOverCanvas.activeInHierarchy) {
+					PauseCanvas.SetActive (true);
+					Time.timeScale = 0;
+					return;
+				}
+				if (GameOverCanvas.activeInHierarchy) {
+					SceneManager.LoadScene("MainMenu");
+					Time.timeScale = 1;
+					return;
+				}
 			}
 		}
     }
+
+	public void Restart () {
+		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		PauseCanvas.SetActive (false);
+		Time.timeScale = 1;
+	}
+
+	public void Resume () {
+		PauseCanvas.SetActive (false);
+		Time.timeScale = 1;
+	}
 
     public void BirdScored()
     {
@@ -57,7 +72,16 @@ public class GameControl : MonoBehaviour
 
     public void BirdDied()
     {
-        gameOvertext.SetActive(true);
+		if (score > highscore) {
+			GameObject go = GameObject.Find ("SoundManager");
+			backgroundMusic other = (backgroundMusic)go.GetComponent (typeof(backgroundMusic));
+			highscore = score;
+			other.setScore (score);
+		}
+		HighText.text = "High Score : " + highscore.ToString ();
+		SkorText.text = "Score : " + score.ToString ();
+		GameOverCanvas.SetActive (true);
+
         gameOver = true;
     }
 }

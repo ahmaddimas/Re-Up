@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class Bird : MonoBehaviour
 {
@@ -21,31 +22,33 @@ public class Bird : MonoBehaviour
         rb2d = GetComponent<Rigidbody2D>();
     }
 
-    void Update()
+	void Update()
     {
         //Don't allow control if the bird has died.
         if (isDead == false)
         {
-            //Look for input to trigger a "flap".
-            if (Input.GetMouseButtonDown(0))
-            {
-                //...tell the animator about it and then...
-                anim.SetTrigger("Flap");
-                //...zero out the birds current y velocity before...
-                rb2d.velocity = Vector2.zero;
+			if (!GameControl.instance.PauseCanvas.activeInHierarchy) {
+				if (Input.GetMouseButtonDown (0)) {
+					//Look for input to trigger a "flap".
+					if (Input.GetMouseButtonDown (0)) {
+						//...tell the animator about it and then...
+						anim.SetTrigger ("Flap");
+						//...zero out the birds current y velocity before...
+						rb2d.velocity = Vector2.zero;
 
-				source.PlayOneShot(fly);
+						//  new Vector2(rb2d.velocity.x, 0);
+						//..giving the bird some upward force.
+						rb2d.AddForce (new Vector2 (0, upForce));
 
-                //  new Vector2(rb2d.velocity.x, 0);
-                //..giving the bird some upward force.
-                rb2d.AddForce(new Vector2(0, upForce));
-            }
+						Flap ();
+					}
+				}
+			}
         }
     }
 
     void OnCollisionEnter2D(Collision2D other)
     {
-		source.PlayOneShot(die);
 
         // Zero out the bird's velocity
         rb2d.velocity = Vector2.zero;
@@ -54,6 +57,26 @@ public class Bird : MonoBehaviour
         //...tell the Animator about it...
         anim.SetTrigger("Die");
         //...and tell the game control about it.
-        GameControl.instance.BirdDied();
+		GameControl.instance.BirdDied();
+
+		Dead ();
     }
+
+	public void Flap () {
+		GameObject go = GameObject.Find ("SoundManager");
+		backgroundMusic other = (backgroundMusic)go.GetComponent (typeof(backgroundMusic));
+		bool tone = other.getTone ();
+		if (tone == true) {
+			source.PlayOneShot(fly);
+		}
+	}
+
+	public void Dead () {
+		GameObject go = GameObject.Find ("SoundManager");
+		backgroundMusic other = (backgroundMusic)go.GetComponent (typeof(backgroundMusic));
+		bool tone = other.getTone ();
+		if (tone == true) {
+			source.PlayOneShot(die);
+		}
+	}
 }

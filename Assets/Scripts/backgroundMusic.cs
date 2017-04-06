@@ -3,13 +3,18 @@ using System.Collections;
 
 public class backgroundMusic : MonoBehaviour {
 
-	private static backgroundMusic instance = null;
+	private static backgroundMusic instance;
 	public static backgroundMusic Instance {
 		get { return instance; }
 	}
 
 	private AudioSource source { get { return GetComponent<AudioSource>(); } }
 	public AudioClip sound;
+
+	public bool active = true;
+	public bool tone = true;
+
+	public int highscore = 0;
 
 	void Awake()
 	{
@@ -24,15 +29,34 @@ public class backgroundMusic : MonoBehaviour {
 
 	void Start() {
 		source.clip = sound;
-		StartAudio ();
-	}
-
-	public void StartAudio () {
 		source.Play ();
 	}
 
-	public void PauseAudio () {
-		source.Stop ();
+	public void StartAudio () {
+		source.UnPause ();
 	}
 
+	public void PauseAudio () {
+		source.Pause ();
+	}
+
+	public bool getActive () {
+		return active;
+	}
+
+	public void setActive (bool e) {
+		active = e;
+	}
+
+	public bool getTone () {
+		return tone;
+	}
+
+	public void setTone (bool e) {
+		tone = e;
+	}
+
+	public void setScore (int e) {
+		highscore = e;
+	}
 }

@@ -31,7 +31,8 @@ public class menuController : MonoBehaviour {
     {
 		startTone ();
 		// 	BeginFade (1);
-        SceneManager.LoadScene(scene);
+		SceneManager.LoadScene(scene);
+		Time.timeScale = 1;
     }
 
 	public void startTone(){
